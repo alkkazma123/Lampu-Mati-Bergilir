@@ -18,18 +18,16 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# ─── Warna output ───
 function Write-Step  { param($msg) Write-Host "  [*] $msg" -ForegroundColor Cyan }
 function Write-OK    { param($msg) Write-Host "  [+] $msg" -ForegroundColor Green }
 function Write-Warn  { param($msg) Write-Host "  [!] $msg" -ForegroundColor Yellow }
 function Write-Err   { param($msg) Write-Host "  [-] $msg" -ForegroundColor Red }
 
-# ─── Banner ───
 Write-Host ""
-Write-Host "  ╔══════════════════════════════════════════╗" -ForegroundColor Magenta
-Write-Host "  ║     LAMPU MATI BERGILIR - Build Tool     ║" -ForegroundColor Magenta
-Write-Host "  ║        Roblox Horror Game Builder        ║" -ForegroundColor DarkMagenta
-Write-Host "  ╚══════════════════════════════════════════╝" -ForegroundColor Magenta
+Write-Host "  ============================================" -ForegroundColor Magenta
+Write-Host "       LAMPU MATI BERGILIR - Build Tool       " -ForegroundColor Magenta
+Write-Host "          Roblox Horror Game Builder           " -ForegroundColor DarkMagenta
+Write-Host "  ============================================" -ForegroundColor Magenta
 Write-Host ""
 
 if ($Help) {
@@ -42,7 +40,6 @@ if ($Help) {
     exit 0
 }
 
-# ─── Cek lokasi project ───
 $projectFile = Join-Path $PSScriptRoot "default.project.json"
 if (-not (Test-Path $projectFile)) {
     Write-Err "default.project.json tidak ditemukan di $PSScriptRoot"
@@ -51,11 +48,9 @@ if (-not (Test-Path $projectFile)) {
 }
 Write-OK "Project file ditemukan: $projectFile"
 
-# ─── Install Rojo jika diminta ───
 if ($Install) {
     Write-Step "Memeriksa tool manager..."
 
-    # Coba Aftman dulu, lalu Foreman
     $aftman  = Get-Command aftman  -ErrorAction SilentlyContinue
     $foreman = Get-Command foreman -ErrorAction SilentlyContinue
 
@@ -82,7 +77,6 @@ if ($Install) {
     Write-OK "Rojo terinstall!"
 }
 
-# ─── Cek Rojo tersedia ───
 $rojo = Get-Command rojo -ErrorAction SilentlyContinue
 if (-not $rojo) {
     Write-Err "Rojo tidak ditemukan di PATH!"
@@ -94,7 +88,6 @@ if (-not $rojo) {
 $rojoVersion = & rojo --version 2>$null
 Write-OK "Rojo ditemukan: $rojoVersion"
 
-# ─── Serve mode ───
 if ($Serve) {
     Write-Step "Menjalankan Rojo live-sync server..."
     Write-Host ""
@@ -106,7 +99,6 @@ if ($Serve) {
     exit 0
 }
 
-# ─── Build mode (default) ───
 $outputFile = Join-Path $PSScriptRoot "game.rbxlx"
 
 Write-Step "Building project..."
