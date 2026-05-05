@@ -1,0 +1,6 @@
+{
+  "className": "StarterGui",
+  "properties": {
+    "ResetPlayerGuiOnSpawn": false
+  }
+}

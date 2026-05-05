@@ -1,0 +1,12 @@
+{
+  "className": "Lighting",
+  "properties": {
+    "Ambient": [15, 10, 20],
+    "OutdoorAmbient": [10, 8, 15],
+    "Brightness": 0.2,
+    "ClockTime": 0.5,
+    "FogEnd": 250,
+    "FogStart": 10,
+    "FogColor": [5, 3, 8]
+  }
+}
