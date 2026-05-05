@@ -156,12 +156,14 @@ local function generateArena(lobbyIndex)
 	folder.Name = "Arena_" .. lobbyIndex
 	folder.Parent = workspace
 
-	-- Ground
-	makePart(folder,
+	-- Ground (transparent to avoid z-fighting flicker)
+	local ground = makePart(folder,
 		Vector3.new(Config.CITY_SIZE, 1, Config.CITY_SIZE),
 		CFrame.new(offset + Vector3.new(0, -0.5, 0)),
 		Color3.fromRGB(40, 40, 40), Enum.Material.Concrete, true, "Ground"
 	)
+	ground.Transparency = 1
+	ground.CanCollide = true
 
 	-- Roads (cross pattern)
 	local roadColor = Color3.fromRGB(55, 55, 55)
@@ -337,6 +339,130 @@ end
 		entities    : {Model},
 	}
 ]]
+
+---------------------------------------------------------------------
+-- LOBBY HUB (physical spawn area at world origin)
+---------------------------------------------------------------------
+local function createLobbyHub()
+	local hub = Instance.new("Folder")
+	hub.Name = "LobbyHub"
+	hub.Parent = workspace
+
+	-- Main platform
+	local platform = makePart(hub,
+		Vector3.new(80, 2, 80),
+		CFrame.new(0, -1, -250),
+		Color3.fromRGB(22, 22, 32), Enum.Material.SmoothPlastic, true, "LobbyFloor"
+	)
+
+	-- Decorative edge glow
+	for _, edgePos in ipairs({
+		CFrame.new(40, 0.5, -250),
+		CFrame.new(-40, 0.5, -250),
+		CFrame.new(0, 0.5, -210),
+		CFrame.new(0, 0.5, -290),
+	}) do
+		local edgeSize = edgePos.Position.X == 0
+			and Vector3.new(80, 0.3, 1)
+			or Vector3.new(1, 0.3, 80)
+		local edge = makePart(hub, edgeSize, edgePos,
+			Color3.fromRGB(120, 80, 255), Enum.Material.Neon, true, "Edge")
+		edge.CanCollide = false
+	end
+
+	-- Title sign
+	local signPart = makePart(hub,
+		Vector3.new(30, 8, 1),
+		CFrame.new(0, 8, -290),
+		Color3.fromRGB(18, 18, 24), Enum.Material.SmoothPlastic, true, "TitleSign"
+	)
+	local signGui = Instance.new("SurfaceGui")
+	signGui.Name = "SignGui"
+	signGui.Adornee = signPart
+	signGui.Face = Enum.NormalId.Front
+	signGui.Parent = signPart
+	local signLabel = Instance.new("TextLabel")
+	signLabel.Size = UDim2.new(1, 0, 1, 0)
+	signLabel.BackgroundTransparency = 1
+	signLabel.Text = "LAMPU MATI BERGILIR"
+	signLabel.Font = Enum.Font.GothamBlack
+	signLabel.TextColor3 = Color3.fromRGB(120, 80, 255)
+	signLabel.TextScaled = true
+	signLabel.Parent = signGui
+
+	-- Lobby selector pillars (4 pillars for 4 lobbies)
+	local pillarPositions = {
+		Vector3.new(-24, 3, -250),
+		Vector3.new(-8, 3, -250),
+		Vector3.new(8, 3, -250),
+		Vector3.new(24, 3, -250),
+	}
+	for i, pos in ipairs(pillarPositions) do
+		local pillar = makePart(hub,
+			Vector3.new(10, 6, 10),
+			CFrame.new(pos),
+			Color3.fromRGB(32, 32, 44), Enum.Material.SmoothPlastic, true, "LobbyPillar_" .. i
+		)
+		local corner = Instance.new("UICorner") -- won't work on Part, use mesh instead
+
+		-- Pillar top glow
+		local glow = makePart(hub,
+			Vector3.new(10, 0.4, 10),
+			CFrame.new(pos + Vector3.new(0, 3.2, 0)),
+			Color3.fromRGB(120, 80, 255), Enum.Material.Neon, true, "PillarGlow_" .. i
+		)
+		glow.CanCollide = false
+
+		-- Lobby number sign
+		local numSign = Instance.new("SurfaceGui")
+		numSign.Name = "LobbyNum"
+		numSign.Adornee = pillar
+		numSign.Face = Enum.NormalId.Front
+		numSign.Parent = pillar
+		local numLabel = Instance.new("TextLabel")
+		numLabel.Size = UDim2.new(1, 0, 1, 0)
+		numLabel.BackgroundTransparency = 1
+		numLabel.Text = "LOBBY " .. i
+		numLabel.Font = Enum.Font.GothamBlack
+		numLabel.TextColor3 = Color3.fromRGB(230, 230, 240)
+		numLabel.TextScaled = true
+		numLabel.Parent = numSign
+	end
+
+	-- Spawn location (center of lobby hub)
+	local mainSpawn = Instance.new("SpawnLocation")
+	mainSpawn.Name = "LobbySpawn"
+	mainSpawn.Size = Vector3.new(12, 1, 12)
+	mainSpawn.CFrame = CFrame.new(0, 0, -250)
+	mainSpawn.Anchored = true
+	mainSpawn.CanCollide = true
+	mainSpawn.Neutral = true
+	mainSpawn.Enabled = true
+	mainSpawn.Transparency = 1
+	mainSpawn.Parent = hub
+
+	-- Ambient lights for lobby
+	for _, lpos in ipairs({
+		Vector3.new(-20, 12, -240), Vector3.new(20, 12, -240),
+		Vector3.new(-20, 12, -260), Vector3.new(20, 12, -260),
+	}) do
+		local lPart = makePart(hub,
+			Vector3.new(2, 1, 2),
+			CFrame.new(lpos),
+			Color3.fromRGB(160, 120, 255), Enum.Material.Neon, true, "LobbyLight"
+		)
+		lPart.CanCollide = false
+		local pl = Instance.new("PointLight")
+		pl.Brightness = 1
+		pl.Range = 30
+		pl.Color = Color3.fromRGB(160, 120, 255)
+		pl.Parent = lPart
+	end
+
+	return hub
+end
+
+local lobbyHub = createLobbyHub()
 
 local lobbies = {}
 

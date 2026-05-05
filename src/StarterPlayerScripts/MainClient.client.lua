@@ -151,6 +151,26 @@ screenGui.IgnoreGuiInset = true
 screenGui.Parent = playerGui
 
 ---------------------------------------------------------------------
+-- AUTO-SCALE: adapts all UI to any screen size / device
+---------------------------------------------------------------------
+local function getScale()
+	local viewport = camera.ViewportSize
+	local baseWidth = 1920
+	local baseHeight = 1080
+	local scaleX = viewport.X / baseWidth
+	local scaleY = viewport.Y / baseHeight
+	return math.min(scaleX, scaleY, 1.2)  -- cap at 1.2x for large screens
+end
+
+local uiScale = Instance.new("UIScale")
+uiScale.Scale = math.max(getScale(), 0.45)  -- min 0.45x for very small screens
+uiScale.Parent = screenGui
+
+camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+	uiScale.Scale = math.clamp(getScale(), 0.45, 1.2)
+end)
+
+---------------------------------------------------------------------
 -- 1. LOADING SCREEN
 ---------------------------------------------------------------------
 local loadingFrame = newFrame({
