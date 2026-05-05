@@ -1,0 +1,17 @@
+# Build output
+*.rbxlx
+*.rbxl
+*.rbxm
+*.rbxmx
+
+# Tool caches
+.aftman/
+.foreman/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+*.code-workspace
